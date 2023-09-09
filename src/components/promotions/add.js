@@ -9,6 +9,7 @@ import Box from '@mui/material/Box'
 import subDays from 'date-fns/subDays'
 import addDays from 'date-fns/addDays'
 import DatePicker from 'react-datepicker'
+import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 // ** Custom Component Imports
 import {
@@ -18,6 +19,8 @@ import {
 
 import MyRequest from "../../@core/components/request";
 import PickersComponent from "../../views/forms/form-elements/pickers/PickersCustomInput";
+import IconButton from "@mui/material/IconButton";
+import Icon from "../../@core/components/icon";
 
 const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
   const [debut, setDebut] = useState(new Date());
@@ -35,20 +38,22 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!debut.trim() || !fin.trim()) {
+    if (!debut || !fin) {
       setErrorMessage(t('an error occurred'));
       return;
     }
     setFormSubmitted(true);
     setOpen(false)
+    const yearDebut = debut.getFullYear();
+    const yearFin = fin.getFullYear();
     const formData = {
-      debut,
-      fin
+      'debut':yearDebut,
+      'fin':yearFin
     };
 
     try {
       setLoading(true);
-      const response = await MyRequest('classes', 'POST', formData, {'Content-Type': 'application/json'});
+      const response = await MyRequest('promotions', 'POST', formData, {'Content-Type': 'application/json'});
       if (response.status === 201) {
         setSuccess(true);
         setDebut('');
@@ -66,10 +71,12 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
 
   return (
     <Dialog
-      maxWidth='lg'
+      fullWidth
+      minWidth='xl'
       open={open}
       onClose={() => setOpen(false)}
       aria-labelledby='form-dialog-title'
+      sx={{ "& .MuiDialog-paper": { minHeight: '400px', minWidth: '600px' } }} // Modifie ces valeurs selon tes besoins
     >
 
         <>
@@ -82,14 +89,20 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
             </Alert>
           )}
           <DialogContent>
+            <IconButton size='small' onClick={() => setOpen(false)} sx={{ position: 'absolute', right: '1rem', top: '1rem' }}>
+              <Icon icon='mdi:close' />
+            </IconButton>
+            <DatePickerWrapper>
+
             <Grid container spacing={2}>
               <Box sx={{ display: 'flex', flexWrap: 'wrap' }} className='demo-space-x'>
                 <div>
                   <DatePicker
                     id='debut-date'
                     selected={debut}
+                    maxDate={addDays(new Date(), 5)}
                     onChange={date => setDebut(date)}
-                    customInput={<PickersComponent label='Debut' />}
+                    customInput={<PickersComponent label={t('Start')} />}
                     dateFormat="yyyy"
                     showYearPicker
                   />
@@ -98,8 +111,9 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
                   <DatePicker
                     id='fin-date'
                     selected={fin}
+                    minDate={subDays(new Date(), 5)}
                     onChange={date => setFin(date)}
-                    customInput={<PickersComponent label='Fin' />}
+                    customInput={<PickersComponent label={t('End')} />}
                     dateFormat="yyyy"
                     showYearPicker
                   />
@@ -111,6 +125,7 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
                 </DialogActions>
               </Grid>
             </Grid>
+            </DatePickerWrapper>
           </DialogContent>
         </>
     </Dialog>

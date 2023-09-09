@@ -3,9 +3,9 @@ import jwt_decode from "jwt-decode";
 import themeConfig from "../../configs/themeConfig";
 import authConfig from "../../configs/auth";
 
-const MyRequest = async (route, method = 'GET', data = null, headers = {}) => {
-
-    const token=window.localStorage.getItem(authConfig.storageTokenKeyName)
+const MyRequest = async (route, method = 'GET', data = [], headers = {}) => {
+  const promotionId = localStorage.getItem('selectedPromotion') || '1';
+  const token=window.localStorage.getItem(authConfig.storageTokenKeyName)
     var decoded = jwt_decode(token);
     const currentTime = new Date().getTime() / 1000; // Obtenez le temps actuel en secondes
     if (decoded.exp < currentTime) {
@@ -15,11 +15,12 @@ const MyRequest = async (route, method = 'GET', data = null, headers = {}) => {
     } else {
           return axios({
             method:method,
-            data:data,
+            data: { ...data },
             baseURL:`${themeConfig.url}${route}` ,
             headers: {
                 ...headers,
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+              'X-Promotion': promotionId
             },
         });
     }

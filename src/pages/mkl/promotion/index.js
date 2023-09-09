@@ -30,6 +30,7 @@ import Fab from "@mui/material/Fab";
 import Error401 from "../../401";
 import Sucess from "../../sucess";
 import Loading from "../../Loading";
+import {useSelector} from "react-redux";
 
 // ** renders client column
 
@@ -81,23 +82,8 @@ const classeList = () => {
     setData(filteredData);
   };
 
-  const filterData = (data, searchVal, ) => {
-    if (!Array.isArray(data)) {
-      console.error("Data provided to filterData is not an array:", data);
-      return [];
-    }
-
-    return data.filter(user =>
-      user.nom.toLowerCase().includes(searchVal.toLowerCase())
-    );
-  };
 
 
-
-  useEffect(() => {
-    const filteredData = filterData(originalData, searchValue);
-    setData(filteredData);
-  }, [searchValue, originalData]);
 
   const router = useRouter();
   useEffect(() => {
@@ -138,12 +124,25 @@ const classeList = () => {
     {
       flex: 0.2,
       minWidth: 100,
-      field: 'nom',
-      headerName: t('Name'),
+      field: 'debut',
+      headerName: t('Start'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.nom}
+            {row.debut}
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 100,
+      field: 'End',
+      headerName: t('End'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.fin}
           </Typography>
         );
       },
@@ -201,7 +200,7 @@ const handleView = (user) => {
             });
           handleRowOptionsClose();
         };
-
+        const selectedPromotion = useSelector(state => state.promotion.selectedPromotion);
 
         return (
           <>

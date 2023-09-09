@@ -43,6 +43,13 @@ const navigation = () => {
       icon: 'carbon:categories',
       path: '/forms/form-elements/pickers'
     },
+    {
+      action: 'read',
+      subject: 'acl-page',
+      icon: 'mdi:vector-arrange-below',
+      title: 'Dialog Examples',
+      path: '/pages/dialog-examples'
+    },
   ]
 }
 

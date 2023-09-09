@@ -17,40 +17,39 @@ import {useTranslation} from 'react-i18next'
 // ** Custom Components Imports
 import CustomAvatar from 'src/@core/components/mui/avatar'
 // ** Custom Table Components Imports
-import MyRequest from "../../../@core/components/request";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import {useRouter} from "next/router";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import Add from "../../../components/classes/add";
-import EditModal from "../../../components/classes/edit";
-import ViewModal from "../../../components/classes/view";
+
 import Fab from "@mui/material/Fab";
-import Error401 from "../../401";
-import Sucess from "../../sucess";
-import Loading from "../../Loading";
-import StudentModal from "../../../components/classes/student";
-import Link from "next/link";
+import Add from "./add";
+import EditModal from "./edit";
+import ViewModal from "./view";
+
 
 // ** renders client column
+const renderClient = row => {
+  if (row.role === "superadmin") {
+    return <CustomAvatar src={"/images/avatars/3.png"} sx={{mr: 3, width: 34, height: 34}}/>
+  } else {
+    return <CustomAvatar src={"/images/avatars/1.png"} sx={{mr: 3, width: 34, height: 34}}/>
+  }
+}
 
-const classeList = () => {
+const StudentModal = ({dataClass, open, setOpen ,setSuccess, setLoading,setError}) => {
   // ** State
   const [openadd, setOpenadd] = useState(false)
   const [openedit, setOpenedit] = useState(false)
   const [openview, setOpenview] = useState(false)
-  const [openstudent, setOpenstudent] = useState(false)
   const [roleFilter, setRoleFilter] = useState('');
   const [originalData, setOriginalData] = useState([])
   const [pageSize, setPageSize] = useState(10)
-  const [addclasseOpen, setAddclasseOpen] = useState(false)
+  const [addUserOpen, setAddUserOpen] = useState(false)
   const [data, setData] = useState([]);
-  const [dataclasse, setDataclasse] = useState([]);
+  const [dataUser, setDataUser] = useState([]);
   const [searchValue, setSearchValue] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const [success, setSuccess] = useState(false); // New state variable for success message
   const [selected, setSelected] = useState([]);
 
 
@@ -59,22 +58,6 @@ const classeList = () => {
   const refreshData = () => {
     router.push({pathname: router.pathname, query: {refresh: Date.now()}});
   }
-  useEffect(() => {
-    if (success) {
-      const timeout = setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
-
-      return () => clearTimeout(timeout);
-    }
-    if (error) {
-      const timeout = setTimeout(() => {
-        setError(false);
-      }, 3000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [success,error]);
 
   //filtre
   const handleSearchChange = event => {
@@ -84,23 +67,29 @@ const classeList = () => {
     setData(filteredData);
   };
 
-  const filterData = (data, searchVal, ) => {
+  const filterData = (data, searchVal, roleVal) => {
     if (!Array.isArray(data)) {
       console.error("Data provided to filterData is not an array:", data);
       return [];
     }
 
     return data.filter(user =>
-      user.nom.toLowerCase().includes(searchVal.toLowerCase())
+      user.nom.toLowerCase().includes(searchVal.toLowerCase()) &&
+      (roleVal === '' || user.role.toLowerCase() === roleVal.toLowerCase())
     );
   };
 
 
 
+  const handleRoleFilterChange = event => {
+    const value = event.target.value;
+    setRoleFilter(value);
+  };
+
   useEffect(() => {
-    const filteredData = filterData(originalData, searchValue);
+    const filteredData = filterData(originalData, searchValue, roleFilter);
     setData(filteredData);
-  }, [searchValue, originalData]);
+  }, [searchValue, roleFilter, originalData]);
 
   const router = useRouter();
   useEffect(() => {
@@ -108,7 +97,7 @@ const classeList = () => {
       setLoading(true);
 
       try {
-        const response = await MyRequest('classes', 'GET', {}, {'Content-Type': 'application/json'});
+        const response = await MyRequest(`classes/eleves/${dataClass.id}`, 'GET', {}, {'Content-Type': 'application/json'});
         if (Array.isArray(response.data)) {
           setOriginalData(response.data);
           setData(response.data);
@@ -123,11 +112,11 @@ const classeList = () => {
         setLoading(false);
       }
     };
-   fetchData();
+    fetchData();
   }, [router.query]);
 
 
-  const toggleAddclasseDrawer = () => setAddclasseOpen(!addclasseOpen)
+  const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
   const {t, i18n} = useTranslation()
 
 
@@ -140,13 +129,27 @@ const classeList = () => {
   const columns = [
     {
       flex: 0.2,
+      maxWidth: 80,
+      field: 'icon',
+      headerName: t(''),
+      renderCell: ({ row }) => {
+
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {renderClient(row)}
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.2,
       minWidth: 100,
-      field: 'nom',
-      headerName: t('Name'),
+      field: 'username',
+      headerName: t("Username"),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.nom}
+            {row.user.username}
           </Typography>
         );
       },
@@ -154,30 +157,42 @@ const classeList = () => {
     {
       flex: 0.2,
       minWidth: 100,
-      field: 'Schooling',
-      headerName: t('Schooling'),
+      field: 'prenom',
+      headerName: t('First Name'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.prix}
+            {row.user.prenom}
           </Typography>
         );
       },
     },
-     {
+    {
       flex: 0.2,
       minWidth: 100,
-      field: 'eleves_count',
-      headerName: t('Number of Students'),
+      field: 'nom',
+      headerName: t('Last Name'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.eleves_count}
+            {row.user.nom}
           </Typography>
         );
       },
     },
-
+    {
+      flex: 0.2,
+      minWidth: 100,
+      field: 'password',
+      headerName: t('Initial Password'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.user.passwordinit}
+          </Typography>
+        );
+      },
+    },
     {
       flex: 0.1,
       minWidth: 90,
@@ -198,27 +213,22 @@ const classeList = () => {
 
         const handleEdit = (user) => {
           // Set the user data to be edited
-          setDataclasse(user);
+          setDataUser(user);
           setOpenedit(true);
           handleRowOptionsClose();
         };
 
-const handleView = (user) => {
+        const handleView = (user) => {
           // Set the user data to be edited
-          setDataclasse(user);
+          setDataUser(user);
           setOpenview(true);
-        };
-const handleStudent = (user) => {
-          // Set the user data to be edited
-          setDataclasse(user);
-          setOpenstudent(true);
         };
 
         const Submitremove = () => {
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('classes/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+          MyRequest('users/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 204) {
                 await refreshData()
@@ -228,9 +238,9 @@ const handleStudent = (user) => {
                 setError(true)
               }
             }).finally(() =>{
-        setLoading(false)
+            setLoading(false)
 
-            })
+          })
             .catch(error => {
               setError(true)
             });
@@ -255,7 +265,7 @@ const handleStudent = (user) => {
               transformOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
-              }}refresh
+              }}
               PaperProps={{ style: { minWidth: '8rem' } }}
             >
               <MenuItem
@@ -265,20 +275,14 @@ const handleStudent = (user) => {
                 <Icon icon='mdi:eye-outline' fontSize={20} />
                 {t('View')}
               </MenuItem>
-                <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => {router.push(`/mkl/student/${row.id}`)}}>
-
-                <Icon icon='mdi:pencil-outline' fontSize={20} />
-                 {t('student')}
-              </MenuItem>
               <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit(row)}>
                 <Icon icon='mdi:pencil-outline' fontSize={20} />
-                 {t('Edit')}
+                {t('Edit')}
               </MenuItem>
               <MenuItem onClick={()=>Submitremove()} sx={{ '& svg': { mr: 2 } }}>
                 <Icon icon='mdi:delete-outline' fontSize={20} />
-                 {t('Delete')}
+                {t('Delete')}
               </MenuItem>
-
             </Menu>
           </>
         );
@@ -287,97 +291,86 @@ const handleStudent = (user) => {
   ];
 
   return (
-      <Grid container spacing={6}>
+    <Grid container spacing={6}>
 
-        <Grid item xs={12}>
-          <Card>
-            {/*filtre et post*/}
-            <Box sx={{
-              p: 5,
-              pb: 3,
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
+      <Grid item xs={12}>
+        <Card>
+          {/*filtre et post*/}
+          <Box sx={{
+            p: 5,
+            pb: 3,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
 
-              {selected.length > 0 && <Fab  aria-label='delect selelcted' color='error' size='medium'
-                                                  onClick={SubmitremoveAll}
-              >
-                <Icon icon='ic:baseline-delete' fontSize={30} />
-              </Fab>}
-              <Box sx={{display: 'flex', alignItems: 'center', marginRight: 6, marginBottom: 2}}>
+            {selected.length > 0 && <Fab  aria-label='delect selelcted' color='error' size='medium'
+                                          onClick={SubmitremoveAll}
+            >
+              <Icon icon='ic:baseline-delete' fontSize={30} />
+            </Fab>}
+            <Box sx={{display: 'flex', alignItems: 'center', marginRight: 6, marginBottom: 2}}>
 
-                <TextField
-                  size='small'
-                  value={searchValue}
-                  placeholder={t('search')}
-                  onChange={handleSearchChange}
-                  sx={{flex: 1}}
-                />
-                <Box sx={{display: 'flex', alignItems: 'center'}}>
-                <Button variant='outlined' onClick={() => setOpenadd(true)}>
-                  {t('to add')}
-                </Button>
-                </Box>
-              </Box>
+              <TextField
+                size='small'
+                value={searchValue}
+                placeholder={t('search')}
+                onChange={handleSearchChange}
+                sx={{flex: 1}}
+              />
+
             </Box>
-            {/*liste*/}
-            <DataGrid
-              autoHeight
-              rows={data}
-              columns={columns}
-              pageSize={pageSize}
-              rowsPerPageOptions={[5,10, 25, 50]}
-              disableSelectionOnClick
-              onSelectionModelChange={(ids) => {
-                setSelected(ids);
-              }}
-              selectionModel={selected}
-              sx={{'& .MuiDataGrid-columnHeaders': {borderRadius: 1}}}
-              onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-            />
+            <Box sx={{display: 'flex', alignItems: 'center'}}>
+              <TextField
+                select
+                size='small'
+                value={roleFilter}
+                onChange={handleRoleFilterChange}
+                label={t("role")}
+                sx={{minWidth: 150}}
+              >
+                <MenuItem value=''>{t("all")}</MenuItem>
+                <MenuItem value={t('superadmin')}>{t('admins')}</MenuItem>
+                <MenuItem value={t('client')}>{t('clients')}</MenuItem>
+              </TextField>
+              <Button variant='outlined' onClick={() => setOpenadd(true)}>
+                {t('to add')}
+              </Button>
 
-          </Card>
-        </Grid>
-        {/*add new*/}
-        <Add open={openadd} setOpen={setOpenadd} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-        <EditModal data={dataclasse} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-        <ViewModal data={dataclasse} open={openview} setOpen={setOpenview} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-       {/* Student user modal */}
-        <Dialog
-          fullWidth
-          open={success}
-          maxWidth='md'
-          scroll='body'
-        >
-          <DialogContent sx={{ pb: 6, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
-       <Sucess/>
-          </DialogContent>
-        </Dialog>
-         <Dialog
-          fullWidth
-          open={loading}
-          maxWidth='md'
-          scroll='body'
-        >
-          <DialogContent sx={{ pb: 6, px: { xs: 8, sm: 15 }, pt: { xs: 8, sm: 12.5 }, position: 'relative' }}>
-       <Loading/>
-          </DialogContent>
-        </Dialog>
-  <Dialog
-    fullWidth
-    open={error}
-    maxWidth='md'
-    scroll='body'
-  >
-    <DialogContent sx={{pb: 6, px: {xs: 8, sm: 15}, pt: {xs: 8, sm: 12.5}, position: 'relative'}}>
-      <Error401/>
-    </DialogContent>
-  </Dialog>
 
+
+
+
+            </Box>
+          </Box>
+          {/*liste*/}
+          <DataGrid
+            autoHeight
+            rows={data}
+            columns={columns}
+            pageSize={pageSize}
+            rowsPerPageOptions={[5,10, 25, 50]}
+            disableSelectionOnClick
+            onSelectionModelChange={(ids) => {
+              setSelected(ids);
+            }}
+            selectionModel={selected}
+            sx={{'& .MuiDataGrid-columnHeaders': {borderRadius: 1}}}
+            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+          />
+
+        </Card>
       </Grid>
+      {/*add new*/}
+      <Add open={openadd} setOpen={setOpenadd} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
+      <EditModal data={dataUser} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
+      <ViewModal data={dataUser} open={openview} setOpen={setOpenview} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
+      {/* View user modal */}
+
+
+    </Grid>
   )
 }
 
-export default classeList
+export default StudentModal

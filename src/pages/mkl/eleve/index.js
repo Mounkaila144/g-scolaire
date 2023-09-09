@@ -23,30 +23,34 @@ import TextField from "@mui/material/TextField";
 import {useRouter} from "next/router";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import Add from "../../../components/classes/add";
-import EditModal from "../../../components/classes/edit";
-import ViewModal from "../../../components/classes/view";
+import Add from "../../../components/users/add";
+import EditModal from "../../../components/users/edit";
+import ViewModal from "../../../components/users/view";
 import Fab from "@mui/material/Fab";
 import Error401 from "../../401";
 import Sucess from "../../sucess";
 import Loading from "../../Loading";
-import StudentModal from "../../../components/classes/student";
-import Link from "next/link";
 
 // ** renders client column
+const renderClient = row => {
+  if (row.role === "superadmin") {
+    return <CustomAvatar src={"/images/avatars/3.png"} sx={{mr: 3, width: 34, height: 34}}/>
+  } else {
+    return <CustomAvatar src={"/images/avatars/1.png"} sx={{mr: 3, width: 34, height: 34}}/>
+  }
+}
 
-const classeList = () => {
+const UserList = () => {
   // ** State
   const [openadd, setOpenadd] = useState(false)
   const [openedit, setOpenedit] = useState(false)
   const [openview, setOpenview] = useState(false)
-  const [openstudent, setOpenstudent] = useState(false)
   const [roleFilter, setRoleFilter] = useState('');
   const [originalData, setOriginalData] = useState([])
   const [pageSize, setPageSize] = useState(10)
-  const [addclasseOpen, setAddclasseOpen] = useState(false)
+  const [addUserOpen, setAddUserOpen] = useState(false)
   const [data, setData] = useState([]);
-  const [dataclasse, setDataclasse] = useState([]);
+  const [dataUser, setDataUser] = useState([]);
   const [searchValue, setSearchValue] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -84,23 +88,29 @@ const classeList = () => {
     setData(filteredData);
   };
 
-  const filterData = (data, searchVal, ) => {
+  const filterData = (data, searchVal, roleVal) => {
     if (!Array.isArray(data)) {
       console.error("Data provided to filterData is not an array:", data);
       return [];
     }
 
     return data.filter(user =>
-      user.nom.toLowerCase().includes(searchVal.toLowerCase())
+      user.nom.toLowerCase().includes(searchVal.toLowerCase()) &&
+      (roleVal === '' || user.role.toLowerCase() === roleVal.toLowerCase())
     );
   };
 
 
 
+  const handleRoleFilterChange = event => {
+    const value = event.target.value;
+    setRoleFilter(value);
+  };
+
   useEffect(() => {
-    const filteredData = filterData(originalData, searchValue);
+    const filteredData = filterData(originalData, searchValue, roleFilter);
     setData(filteredData);
-  }, [searchValue, originalData]);
+  }, [searchValue, roleFilter, originalData]);
 
   const router = useRouter();
   useEffect(() => {
@@ -108,7 +118,7 @@ const classeList = () => {
       setLoading(true);
 
       try {
-        const response = await MyRequest('classes', 'GET', {}, {'Content-Type': 'application/json'});
+        const response = await MyRequest('users', 'GET', {}, {'Content-Type': 'application/json'});
         if (Array.isArray(response.data)) {
           setOriginalData(response.data);
           setData(response.data);
@@ -127,7 +137,7 @@ const classeList = () => {
   }, [router.query]);
 
 
-  const toggleAddclasseDrawer = () => setAddclasseOpen(!addclasseOpen)
+  const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
   const {t, i18n} = useTranslation()
 
 
@@ -140,9 +150,49 @@ const classeList = () => {
   const columns = [
     {
       flex: 0.2,
+      maxWidth: 80,
+      field: 'icon',
+      headerName: t(''),
+      renderCell: ({ row }) => {
+
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {renderClient(row)}
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 100,
+      field: 'username',
+      headerName: t("Username"),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.username}
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 100,
+      field: 'prenom',
+      headerName: t('First Name'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.prenom}
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.2,
       minWidth: 100,
       field: 'nom',
-      headerName: t('Name'),
+      headerName: t('Last Name'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
@@ -154,30 +204,16 @@ const classeList = () => {
     {
       flex: 0.2,
       minWidth: 100,
-      field: 'Schooling',
-      headerName: t('Schooling'),
+      field: 'password',
+      headerName: t('Initial Password'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.prix}
+            {row.passwordinit}
           </Typography>
         );
       },
     },
-     {
-      flex: 0.2,
-      minWidth: 100,
-      field: 'eleves_count',
-      headerName: t('Number of Students'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.eleves_count}
-          </Typography>
-        );
-      },
-    },
-
     {
       flex: 0.1,
       minWidth: 90,
@@ -198,27 +234,22 @@ const classeList = () => {
 
         const handleEdit = (user) => {
           // Set the user data to be edited
-          setDataclasse(user);
+          setDataUser(user);
           setOpenedit(true);
           handleRowOptionsClose();
         };
 
 const handleView = (user) => {
           // Set the user data to be edited
-          setDataclasse(user);
+          setDataUser(user);
           setOpenview(true);
-        };
-const handleStudent = (user) => {
-          // Set the user data to be edited
-          setDataclasse(user);
-          setOpenstudent(true);
         };
 
         const Submitremove = () => {
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('classes/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+          MyRequest('users/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 204) {
                 await refreshData()
@@ -255,7 +286,7 @@ const handleStudent = (user) => {
               transformOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
-              }}refresh
+              }}
               PaperProps={{ style: { minWidth: '8rem' } }}
             >
               <MenuItem
@@ -265,11 +296,6 @@ const handleStudent = (user) => {
                 <Icon icon='mdi:eye-outline' fontSize={20} />
                 {t('View')}
               </MenuItem>
-                <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => {router.push(`/mkl/student/${row.id}`)}}>
-
-                <Icon icon='mdi:pencil-outline' fontSize={20} />
-                 {t('student')}
-              </MenuItem>
               <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit(row)}>
                 <Icon icon='mdi:pencil-outline' fontSize={20} />
                  {t('Edit')}
@@ -278,7 +304,6 @@ const handleStudent = (user) => {
                 <Icon icon='mdi:delete-outline' fontSize={20} />
                  {t('Delete')}
               </MenuItem>
-
             </Menu>
           </>
         );
@@ -315,11 +340,29 @@ const handleStudent = (user) => {
                   onChange={handleSearchChange}
                   sx={{flex: 1}}
                 />
-                <Box sx={{display: 'flex', alignItems: 'center'}}>
+
+              </Box>
+              <Box sx={{display: 'flex', alignItems: 'center'}}>
+                <TextField
+                  select
+                  size='small'
+                  value={roleFilter}
+                  onChange={handleRoleFilterChange}
+                  label={t("role")}
+                  sx={{minWidth: 150}}
+                >
+                  <MenuItem value=''>{t("all")}</MenuItem>
+                  <MenuItem value={t('superadmin')}>{t('admins')}</MenuItem>
+                  <MenuItem value={t('client')}>{t('clients')}</MenuItem>
+                </TextField>
                 <Button variant='outlined' onClick={() => setOpenadd(true)}>
                   {t('to add')}
                 </Button>
-                </Box>
+
+
+
+
+
               </Box>
             </Box>
             {/*liste*/}
@@ -342,9 +385,9 @@ const handleStudent = (user) => {
         </Grid>
         {/*add new*/}
         <Add open={openadd} setOpen={setOpenadd} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-        <EditModal data={dataclasse} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-        <ViewModal data={dataclasse} open={openview} setOpen={setOpenview} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-       {/* Student user modal */}
+        <EditModal data={dataUser} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
+        <ViewModal data={dataUser} open={openview} setOpen={setOpenview} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
+       {/* View user modal */}
         <Dialog
           fullWidth
           open={success}
@@ -380,4 +423,4 @@ const handleStudent = (user) => {
   )
 }
 
-export default classeList
+export default UserList
