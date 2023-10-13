@@ -7,54 +7,40 @@ import {
   Grid, TextField, DialogActions, Button
 } from "@mui/material";
 
-
 import MyRequest from "../../@core/components/request";
-import DatePickerWrapper from "../../@core/styles/libs/react-datepicker";
-import DatePicker from "react-datepicker";
+import addDays from "date-fns/addDays";
 import PickersComponent from "../../views/forms/form-elements/pickers/PickersCustomInput";
+import DatePicker from "react-datepicker";
+import DatePickerWrapper from "../../@core/styles/libs/react-datepicker";
 
-const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) => {
-  const [nom, setNom] = useState(data?.user?.nom || '');
-  const [prenom, setPrenom] = useState(data?.user?.prenom || '');
-
-  const [number, setNumber] = useState(data.number);
-  const [adresse, setAdresse] = useState(data.adresse);
-  const [birth, setBirth] = useState(data.birth ? new Date(data.birth) : new Date());
-  const [nationalite, setNationalite] = useState(data.nationalite);
-  const [genre, setGenre] = useState(data.genre);
+const Add = ({id, open, setOpen ,setSuccess, setLoading,setError}) => {
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
+  const [number, setNumber] = useState('');
+  const [adresse, setAdresse] = useState('');
+  const [birth, setBirth] = useState(new Date());
+  const [nationalite, setNationalite] = useState('');
+  const [genre, setGenre] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
-  useEffect(() => {
-    console.log("Data.birth:", data.birth);
-    setNom(data?.user?.nom || '');
-    setPrenom(data?.user?.prenom || '');
-    setAdresse(data.adresse);
-    if (data.birth) {
-      setBirth(new Date(data.birth));
-    }
-    setNationalite(data.nationalite);
-    setGenre(data.genre);
-    setNumber(data.number);
-  }, [data]);
+
 
   const router = useRouter();
   const { t } = useTranslation();
 
-  const refreshData = () => {
-    router.push('/mkl/student/'+id+"?refresh="+Date.now());
-  }
 
+  const refreshData = () => {
+    router.push({ pathname: router.pathname, query: { refresh: Date.now() } });
+  }
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!nom.trim() || !prenom.trim()) {
+    if (!nom.trim() || !prenom.trim() || !adresse.trim() || !genre.trim() || !nationalite.trim() || !number.trim()) {
       setErrorMessage(t('an error occurred'));
       return;
     }
     setFormSubmitted(true);
-    setOpen(false);
     const formData = {
       nom,
-      classe_id:id,
       prenom,
       adresse,
       genre,
@@ -65,10 +51,11 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
 
     try {
       setLoading(true);
-      const response = await MyRequest('eleves/' + data.id, 'PUT', formData, {'Content-Type': 'application/json'});
-      if (response.status === 200) {
+      const response = await MyRequest('professeurs', 'POST', formData, {'Content-Type': 'application/json'});
+      if (response.status === 201) {
         setSuccess(true);
-
+        setNom('');
+        setPrenom('');
         refreshData();
       } else {
         setError(true);
@@ -90,7 +77,7 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
 
       <>
         <DialogTitle id='form-dialog-title' sx={{ textAlign: 'center' }}>
-          {t('edit')}
+          {t('add')}
         </DialogTitle>
         {errorMessage && (
           <Alert variant='filled' severity='error'>
@@ -104,9 +91,6 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
               <Grid item xs={12} lg={6}>
                 <TextField
                   label={t("nom")}
-                  InputLabelProps={{
-                    shrink: true,  // Cela fait en sorte que le label soit toujours réduit et donc à l'extérieur du champ
-                  }}
                   variant="outlined"
                   fullWidth
                   value={nom}
@@ -118,9 +102,6 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
               <Grid item xs={12} lg={6}>
                 <TextField
                   label={t("prenom")}
-                  InputLabelProps={{
-                    shrink: true,  // Cela fait en sorte que le label soit toujours réduit et donc à l'extérieur du champ
-                  }}
                   variant="outlined"
                   fullWidth
                   value={prenom}
@@ -135,17 +116,13 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
                   id='Date'
                   selected={birth}
                   onChange={date => setBirth(date)}
-                  customInput={<PickersComponent label={t('Start')}
-                  />}
+                  customInput={<PickersComponent label={t('Start')} />}
                 />
 
               </Grid>
               <Grid item xs={12} lg={6}>
                 <TextField
                   label={t("adresse")}
-                  InputLabelProps={{
-                    shrink: true,  // Cela fait en sorte que le label soit toujours réduit et donc à l'extérieur du champ
-                  }}
                   variant="outlined"
                   fullWidth
                   value={adresse}
@@ -158,9 +135,6 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
               <Grid item xs={12} lg={6}>
                 <TextField
                   label={t("number")}
-                  InputLabelProps={{
-                    shrink: true,  // Cela fait en sorte que le label soit toujours réduit et donc à l'extérieur du champ
-                  }}
                   variant="outlined"
                   fullWidth
                   value={number}
@@ -173,9 +147,6 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
               <Grid item xs={12} lg={6}>
                 <TextField
                   label={t("nationalite")}
-                  InputLabelProps={{
-                    shrink: true,  // Cela fait en sorte que le label soit toujours réduit et donc à l'extérieur du champ
-                  }}
                   variant="outlined"
                   fullWidth
                   value={nationalite}
@@ -188,9 +159,6 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
               <Grid item xs={12} lg={6}>
                 <TextField
                   label={t("genre")}
-                  InputLabelProps={{
-                    shrink: true,  // Cela fait en sorte que le label soit toujours réduit et donc à l'extérieur du champ
-                  }}
                   variant="outlined"
                   fullWidth
                   value={genre}
@@ -214,4 +182,4 @@ const EditModal = ({id,data, open, setOpen, setSuccess, setLoading, setError}) =
   );
 };
 
-export default EditModal;
+export default Add;

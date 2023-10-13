@@ -28,27 +28,20 @@ import Sucess from "../../sucess";
 import Loading from "../../Loading";
 import Error401 from "../../401";
 import MyRequest from "../../../@core/components/request";
-import Add from "../../../components/eleves/add";
-import EditModal from "../../../components/eleves/edit";
-import ViewModal from "../../../components/eleves/view";
+import Add from "../../../components/depenses/add";
+import EditModal from "../../../components/depenses/edit";
+import ViewModal from "../../../components/depenses/view";
 
 
 // ** renders client column
-const renderClient = row => {
-  if (row.role === "superadmin") {
-    return <CustomAvatar src={"/images/avatars/3.png"} sx={{mr: 3, width: 34, height: 34}}/>
-  } else {
-    return <CustomAvatar src={"/images/avatars/1.png"} sx={{mr: 3, width: 34, height: 34}}/>
-  }
-}
 
-const StudentModal = ({}) => {
+
+const depenseModal = ({}) => {
   // ** State
   const router = useRouter();  // Initialize router here
   const [openadd, setOpenadd] = useState(false)
   const [openedit, setOpenedit] = useState(false)
   const [openview, setOpenview] = useState(false)
-  const [roleFilter, setRoleFilter] = useState('');
   const [originalData, setOriginalData] = useState([])
   const [pageSize, setPageSize] = useState(10)
   const [addUserOpen, setAddUserOpen] = useState(false)
@@ -85,45 +78,13 @@ const StudentModal = ({}) => {
   }, [success,error]);
 
   //filtre
-  const handleSearchChange = event => {
-    const value = event.target.value;
-    setSearchValue(value);
-    const filteredData = filterData(originalData, value, roleFilter);
-    setData(filteredData);
-  };
-console.log(id)
-  const filterData = (data, searchVal, roleVal) => {
-    if (!Array.isArray(data)) {
-      console.error("Data provided to filterData is not an array:", data);
-      return [];
-    }
-
-    return data.filter(user =>
-      user.user.nom.toLowerCase().includes(searchVal.toLowerCase())||
-      user.user.prenom.toLowerCase().includes(searchVal.toLowerCase())||
-      user.adresse.toLowerCase().includes(searchVal.toLowerCase())||
-      user.number.toLowerCase().includes(searchVal.toLowerCase())
-    );
-  };
-
-
-
-  const handleRoleFilterChange = event => {
-    const value = event.target.value;
-    setRoleFilter(value);
-  };
-
-  useEffect(() => {
-    const filteredData = filterData(originalData, searchValue, roleFilter);
-    setData(filteredData);
-  }, [searchValue, roleFilter, originalData]);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        const response = await MyRequest(`eleves/classe/${id}`, 'GET', {}, {'Content-Type': 'application/json'});
+        const response = await MyRequest('depenses', 'GET', {}, {'Content-Type': 'application/json'});
         if (Array.isArray(response.data)) {
           setOriginalData(response.data);
           setData(response.data);
@@ -146,92 +107,36 @@ console.log(id)
   const {t, i18n} = useTranslation()
 
 
-  useEffect(() => {
-    console.log(selected);
-  }, [selected]);
-
-
 
   const columns = [
-    {
-      flex: 0.2,
-      minWidth: 80,
-      field: 'icon',
-      headerName: t(''),
-      renderCell: ({ row }) => {
 
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderClient(row)}
-          </Box>
-        );
-      },
-    },
     {
       flex: 0.2,
       minWidth: 200,
-      field: 'username',
-      headerName: t("Username"),
+      field: 'prix',
+      headerName: t("Price"),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.user.username}
+            {row.prix}
           </Typography>
         );
       },
     },
     {
       flex: 0.2,
-      minWidth: 200,
-      field: 'prenom',
-      headerName: t('First Name'),
+      minWidth: 400,
+      field: 'details',
+      headerName: t('Details'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.user.prenom}
+            {row.details}
           </Typography>
         );
       },
     },
-    {
-      flex: 0.2,
-      minWidth: 200,
-      field: 'nom',
-      headerName: t('Last Name'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.user.nom}
-          </Typography>
-        );
-      },
-    },
-    {
-      flex: 0.2,
-      minWidth: 200,
-      field: 'password',
-      headerName: t('Initial Password'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.user.passwordinit}
-          </Typography>
-        );
-      },
-    },
-    {
-      flex: 0.2,
-      minWidth: 200,
-      field: 'number',
-      headerName: t('Number'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.number}
-          </Typography>
-        );
-      },
-    },
+
     {
       flex: 0.1,
       minWidth: 90,
@@ -274,7 +179,7 @@ console.log(id)
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('users/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+          MyRequest('depenses/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 204) {
                 await refreshData()
@@ -356,30 +261,9 @@ console.log(id)
             >
               <Icon icon='ic:baseline-delete' fontSize={30} />
             </Fab>}
-            <Box sx={{display: 'flex', alignItems: 'center', marginRight: 6, marginBottom: 2}}>
 
-              <TextField
-                size='small'
-                value={searchValue}
-                placeholder={t('search')}
-                onChange={handleSearchChange}
-                sx={{flex: 1}}
-              />
-
-            </Box>
             <Box sx={{display: 'flex', alignItems: 'center'}}>
-              <TextField
-                select
-                size='small'
-                value={roleFilter}
-                onChange={handleRoleFilterChange}
-                label={t("role")}
-                sx={{minWidth: 150}}
-              >
-                <MenuItem value=''>{t("all")}</MenuItem>
-                <MenuItem value={t('superadmin')}>{t('admins')}</MenuItem>
-                <MenuItem value={t('client')}>{t('clients')}</MenuItem>
-              </TextField>
+
               <Button variant='outlined' onClick={() => setOpenadd(true)}>
                 {t('to add')}
               </Button>
@@ -412,7 +296,7 @@ console.log(id)
       <Add id={id} open={openadd} setOpen={setOpenadd} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
       <EditModal  id={id}  data={dataUser} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
       <ViewModal  id={id}  data={dataUser} open={openview} setOpen={setOpenview} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-       {/*View user modal */}
+      {/*View user modal */}
 
       <Dialog
         fullWidth
@@ -449,4 +333,4 @@ console.log(id)
   )
 }
 
-export default StudentModal
+export default depenseModal

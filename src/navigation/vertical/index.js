@@ -37,19 +37,37 @@ const navigation = () => {
       path: '/mkl/promotion'
     },
     {
-      title: 'Date Pickers',
+      title: 'Depense',
       action: 'read',
       subject: 'acl-page',
       icon: 'carbon:categories',
-      path: '/forms/form-elements/pickers'
+      path: '/mkl/depense'
     },
-    {
+
+ {
+      title: 'Pay teacher',
       action: 'read',
       subject: 'acl-page',
-      icon: 'mdi:vector-arrange-below',
-      title: 'Dialog Examples',
-      path: '/pages/dialog-examples'
+      icon: 'carbon:categories',
+      path: '/mkl/payteacher'
     },
+    {
+      title: 'Pay Admin',
+      action: 'read',
+      subject: 'acl-page',
+      icon: 'carbon:categories',
+      path: '/mkl/payadmin'
+    },
+
+ {
+      title: 'Professeur',
+      action: 'read',
+      subject: 'acl-page',
+      icon: 'carbon:categories',
+      path: '/mkl/professeur'
+    },
+
+
   ]
 }
 

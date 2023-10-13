@@ -26,7 +26,7 @@ const roleColors = {
 }
 
 
-const ViewModal = ({ open, setOpen, data }) => {
+const ViewModalTeach = ({ open, setOpen, data }) => {
   const handleClose = () => {
     setOpen(false);
   };
@@ -65,7 +65,7 @@ const ViewModal = ({ open, setOpen, data }) => {
                   <CustomChip
                     skin='light'
                     size='small'
-                    label={data.classe.nom}
+                    label={data.user.nom}
                     color={roleColors["admin"]}
                     sx={{
                       height: 20,
@@ -144,4 +144,4 @@ const ViewModal = ({ open, setOpen, data }) => {
   }
 };
 
-export default ViewModal;
+export default ViewModalTeach;

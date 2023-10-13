@@ -28,9 +28,9 @@ import Sucess from "../../sucess";
 import Loading from "../../Loading";
 import Error401 from "../../401";
 import MyRequest from "../../../@core/components/request";
-import Add from "../../../components/eleves/add";
-import EditModal from "../../../components/eleves/edit";
-import ViewModal from "../../../components/eleves/view";
+import Add from "../../../components/professeurs/add";
+import EditModal from "../../../components/professeurs/edit";
+import ViewModal from "../../../components/professeurs/view";
 
 
 // ** renders client column
@@ -98,11 +98,11 @@ console.log(id)
       return [];
     }
 
-    return data.filter(user =>
-      user.user.nom.toLowerCase().includes(searchVal.toLowerCase())||
-      user.user.prenom.toLowerCase().includes(searchVal.toLowerCase())||
-      user.adresse.toLowerCase().includes(searchVal.toLowerCase())||
-      user.number.toLowerCase().includes(searchVal.toLowerCase())
+    return data.filter(professeur =>
+      professeur.user.nom.toLowerCase().includes(searchVal.toLowerCase())||
+      professeur.user.prenom.toLowerCase().includes(searchVal.toLowerCase())||
+      professeur.adresse.toLowerCase().includes(searchVal.toLowerCase())||
+      professeur.number.toLowerCase().includes(searchVal.toLowerCase())
     );
   };
 
@@ -123,7 +123,7 @@ console.log(id)
       setLoading(true);
 
       try {
-        const response = await MyRequest(`eleves/classe/${id}`, 'GET', {}, {'Content-Type': 'application/json'});
+        const response = await MyRequest(`professeurs`, 'GET', {}, {'Content-Type': 'application/json'});
         if (Array.isArray(response.data)) {
           setOriginalData(response.data);
           setData(response.data);
@@ -170,12 +170,12 @@ console.log(id)
     {
       flex: 0.2,
       minWidth: 200,
-      field: 'username',
+      field: 'professeurname',
       headerName: t("Username"),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.user.username}
+            {row.user.professeurname}
           </Typography>
         );
       },
@@ -257,16 +257,16 @@ console.log(id)
         };
 
 
-        const handleEdit = (user) => {
-          // Set the user data to be edited
-          setDataUser(user);
+        const handleEdit = (professeur) => {
+          // Set the professeur data to be edited
+          setDataUser(professeur);
           setOpenedit(true);
           handleRowOptionsClose();
         };
 
-        const handleView = (user) => {
-          // Set the user data to be edited
-          setDataUser(user);
+        const handleView = (professeur) => {
+          // Set the professeur data to be edited
+          setDataUser(professeur);
           setOpenview(true);
         };
 
@@ -274,7 +274,7 @@ console.log(id)
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('users/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+          MyRequest('professeurs/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 204) {
                 await refreshData()
@@ -412,7 +412,7 @@ console.log(id)
       <Add id={id} open={openadd} setOpen={setOpenadd} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
       <EditModal  id={id}  data={dataUser} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
       <ViewModal  id={id}  data={dataUser} open={openview} setOpen={setOpenview} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-       {/*View user modal */}
+       {/*View professeur modal */}
 
       <Dialog
         fullWidth

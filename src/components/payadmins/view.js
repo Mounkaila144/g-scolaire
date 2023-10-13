@@ -65,7 +65,7 @@ const ViewModal = ({ open, setOpen, data }) => {
                   <CustomChip
                     skin='light'
                     size='small'
-                    label={data.classe.nom}
+                    label={data.classe&&data.classe.nom}
                     color={roleColors["admin"]}
                     sx={{
                       height: 20,
