@@ -20,7 +20,7 @@ function PromotionSelector() {
         setSuccess(true);
 
         // Triez les promotions par ID de manière décroissante
-        const sortedPromotions = response.data.sort((a, b) => b.id - a.id);
+        const sortedPromotions = response.data.data.sort((a, b) => b.id - a.id);
         setPromotions(sortedPromotions);
 
         // Si aucune promotion n'est stockée dans le localStorage, définissez celle avec le plus grand ID par défaut

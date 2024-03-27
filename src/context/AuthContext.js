@@ -44,8 +44,8 @@ const AuthProvider = ({ children }) => {
           })
           .then(async response => {
             setLoading(false)
-            setUser({ ...response.data})
-            console.log(response.data)
+            setUser({ ...response.data.data.user})
+            console.log('userme' ,response.data.data.user)
           })
           .catch(() => {
             localStorage.removeItem('userData')
@@ -66,22 +66,37 @@ const AuthProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+
   const handleLogin = (params, errorCallback) => {
     axios
-      .post(authConfig.loginEndpoint, params)
-      .then(async response => {
-   window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.token)
+        .post(authConfig.loginEndpoint, params)
+        .then(response => {
+          // Log pour le développement. Vous pouvez le retirer plus tard.
+          console.log('la réponse :', response);
 
-        const returnUrl = router.query.returnUrl
-        setUser({ ...response.data.user})
-      window.localStorage.setItem('userData', JSON.stringify(response.data.user))
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-        router.replace(redirectURL)
-      })
-      .catch(err => {
-        if (errorCallback) errorCallback(err)
-      })
-  }
+          // Extrayez l'access_token et les données de l'utilisateur de la réponse
+          const { access_token, user } = response.data.data;
+
+          // Stockage de l'access_token dans localStorage
+          window.localStorage.setItem(authConfig.storageTokenKeyName, access_token);
+
+          // Mise à jour de l'état de l'utilisateur dans l'application
+          setUser({ ...user.user });
+
+          window.localStorage.setItem('userData', JSON.stringify(user.user));
+
+          // Redirection basée sur l'URL de retour, si elle existe
+          const returnUrl = router.query.returnUrl || '/';
+          const redirectURL = returnUrl !== '/' ? returnUrl : '/';
+          router.replace(redirectURL);
+        })
+        .catch(err => {
+          // Appel de la fonction de rappel d'erreur personnalisée, si elle est fournie
+          if (errorCallback) errorCallback(err);
+        });
+  };
+
+
 
   const handleLogout = () => {
     setUser(null)

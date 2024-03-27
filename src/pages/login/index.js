@@ -100,8 +100,8 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  password: 'admin',
-  username: 'admin@materialize.com'
+  password: '90145781',
+  username: 'mounkaila144'
 }
 
 const LoginPage = () => {
@@ -255,7 +255,7 @@ const LoginPage = () => {
             </Box>
             <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
               <Typography variant='caption' sx={{ mb: 2, display: 'block', color: 'primary.main' }}>
-                Admin: <strong>admin@materialize.com</strong> / Pass: <strong>admin</strong>
+                Admin: <strong>admin@materialize.com</strong> / Pass: <strong>90145781</strong>
               </Typography>
               <Typography variant='caption' sx={{ display: 'block', color: 'primary.main' }}>
                 Client: <strong>client@materialize.com</strong> / Pass: <strong>client</strong>
@@ -275,7 +275,7 @@ const LoginPage = () => {
                       onBlur={onBlur}
                       onChange={onChange}
                       error={Boolean(errors.username)}
-                      placeholder='admin@materialize.com'
+                      placeholder='mounkaila144'
                     />
                   )}
                 />

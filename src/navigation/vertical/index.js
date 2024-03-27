@@ -23,6 +23,14 @@ const navigation = () => {
       path: '/mkl/user'
     },
     {
+      title: 'All Student',
+      action: 'read',
+      subject: 'acl-page',
+      icon: 'mdi:account-outline',
+      path: '/mkl/student/all'
+    },
+
+    {
       title: 'Class',
       action: 'read',
       subject: 'acl-page',
