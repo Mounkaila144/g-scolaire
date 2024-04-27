@@ -6,7 +6,6 @@ import Card from '@mui/material/Card'
 import Menu from '@mui/material/Menu'
 import Grid from '@mui/material/Grid'
 import {DataGrid} from '@mui/x-data-grid'
-import {styled} from '@mui/material/styles'
 import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -14,8 +13,6 @@ import Typography from '@mui/material/Typography'
 import Icon from 'src/@core/components/icon'
 // ** Store Imports
 import {useTranslation} from 'react-i18next'
-// ** Custom Components Imports
-import CustomAvatar from 'src/@core/components/mui/avatar'
 // ** Custom Table Components Imports
 import MyRequest from "../../../@core/components/request";
 import Button from "@mui/material/Button";
@@ -30,8 +27,20 @@ import Fab from "@mui/material/Fab";
 import Error401 from "../../401";
 import Sucess from "../../sucess";
 import Loading from "../../Loading";
-import StudentModal from "../../../components/classes/student";
-import Link from "next/link";
+import CardPlanUpgrade from "../../../views/ui/cards/advanced/CardPlanUpgrade";
+import CardHeader from "@mui/material/CardHeader";
+import OptionsMenu from "../../../@core/components/option-menu";
+import CardContent from "@mui/material/CardContent";
+import Avatar from "@mui/material/Avatar";
+import Link from "@mui/material/Link";
+
+// ** Icon Imports
+
+// ** Custom Components Imports
+
+// ** Hooks Imports
+import useBgColor from 'src/@core/hooks/useBgColor'
+import { formatPrice} from "../../../utils/formatPrice"; // Assurez-vous que le chemin est correct
 
 // ** renders client column
 
@@ -53,6 +62,9 @@ const classeList = () => {
   const [success, setSuccess] = useState(false); // New state variable for success message
   const [selected, setSelected] = useState([]);
 
+    const [cvc1, setCvc1] = useState('')
+    const [cvc2, setCvc2] = useState('')
+    const bgColors = useBgColor()
 
   //DETED
 
@@ -109,9 +121,9 @@ const classeList = () => {
 
       try {
         const response = await MyRequest('classes', 'GET', {}, {'Content-Type': 'application/json'});
-        if (Array.isArray(response.data)) {
-          setOriginalData(response.data);
-          setData(response.data);
+        if (Array.isArray(response.data.data)) {
+          setOriginalData(response.data.data);
+          setData(response.data.data);
         } else {
           console.error("Received non-array data:", response.data);
           setError("Une erreur est survenue lors du traitement des données.");
@@ -135,211 +147,166 @@ const classeList = () => {
     console.log(selected);
   }, [selected]);
 
+    const colors = ['#FFC0CB', '#FFD700', '#8A2BE2', '#5F9EA0', '#FF6347', '#40E0D0', '#EE82EE', '#F5DEB3'];
 
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
 
-  const columns = [
-    {
-      flex: 0.2,
-      minWidth: 100,
-      field: 'nom',
-      headerName: t('Name'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.nom}
-          </Typography>
-        );
-      },
-    },
-    {
-      flex: 0.2,
-      minWidth: 100,
-      field: 'Schooling',
-      headerName: t('Schooling'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.prix}
-          </Typography>
-        );
-      },
-    },
-     {
-      flex: 0.2,
-      minWidth: 100,
-      field: 'eleves_count',
-      headerName: t('Number of Students'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.eleves_count}
-          </Typography>
-        );
-      },
-    },
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
 
-    {
-      flex: 0.1,
-      minWidth: 90,
-      sortable: false,
-      field: 'actions',
-      headerName: t('action'),
-      renderCell: ({ row }) => {
-        const [anchorEl, setAnchorEl] = useState(null);
-        const rowOptionsOpen = Boolean(anchorEl);
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const handleEdit = (user) => {
+        setDataclasse(user);
+        setOpenEdit(true);
+    };
 
-        const handleRowOptionsClick = (event) => {
-          setAnchorEl(event.currentTarget);
-        };
+    const handleView = (user) => {
+        setDataclasse(user);
+        setOpenView(true);
+    };
 
-        const handleRowOptionsClose = () => {
-          setAnchorEl(null);
-        };
-
-        const handleEdit = (user) => {
-          // Set the user data to be edited
-          setDataclasse(user);
-          setOpenedit(true);
-          handleRowOptionsClose();
-        };
-
-const handleView = (user) => {
-          // Set the user data to be edited
-          setDataclasse(user);
-          setOpenview(true);
-        };
-const handleStudent = (user) => {
-          // Set the user data to be edited
-          setDataclasse(user);
-          setOpenstudent(true);
-        };
-
-        const Submitremove = () => {
-          var data=Object.values([row.id]);
-
-          setLoading(true)
-          MyRequest('classes/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
-            .then(async (response) => {
-              if (response.status === 204) {
-                await refreshData()
-                setSuccess(true)
-
-              } else {
-                setError(true)
-              }
-            }).finally(() =>{
-        setLoading(false)
-
-            })
-            .catch(error => {
-              setError(true)
-            });
-          handleRowOptionsClose();
-        };
-
-
-        return (
-          <>
-            <IconButton size='small' onClick={handleRowOptionsClick}>
-              <Icon icon='mdi:dots-vertical' />
-            </IconButton>
-            <Menu
-              keepMounted
-              anchorEl={anchorEl}
-              open={rowOptionsOpen}
-              onClose={handleRowOptionsClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}refresh
-              PaperProps={{ style: { minWidth: '8rem' } }}
-            >
-              <MenuItem
-                sx={{ '& svg': { mr: 2 } }}
-                onClick={() => handleView(row)}
-              >
-                <Icon icon='mdi:eye-outline' fontSize={20} />
-                {t('View')}
-              </MenuItem>
-                <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => {router.push(`/mkl/student/${row.id}`)}}>
-
-                <Icon icon='mdi:pencil-outline' fontSize={20} />
-                 {t('student')}
-              </MenuItem>
-              <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit(row)}>
-                <Icon icon='mdi:pencil-outline' fontSize={20} />
-                 {t('Edit')}
-              </MenuItem>
-              <MenuItem onClick={()=>Submitremove()} sx={{ '& svg': { mr: 2 } }}>
-                <Icon icon='mdi:delete-outline' fontSize={20} />
-                 {t('Delete')}
-              </MenuItem>
-
-            </Menu>
-          </>
-        );
-      },
-    },
-  ];
-
+    const handleStudent = (user) => {
+        setDataclasse(user);
+        setOpenStudent(true);
+    };
   return (
-      <Grid container spacing={6}>
+<>
+      <Grid container spacing={3}> {/* Ajout de l'espacement entre les cartes */}
+          {data.map((classe, index) => (
+              <Grid item key={index} xs={12} sm={6} md={4} lg={4}> {/* Configuration responsive */}
+                  <Card style={{ backgroundColor: colors[index % colors.length] }}> {/* Applique la couleur cycliquement */}
+                        <CardHeader
+                            title={classe.nom}
+                            action={
+                                <>
+                                    <IconButton
+                                        aria-label="settings"
+                                        aria-controls="simple-menu"
+                                        aria-haspopup="true"
+                                        onClick={handleClick}
+                                    >
+                                        <Icon icon='mdi:dots-vertical' fontSize={20} />
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={open}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={handleView}>
+                                            <Icon icon='mdi:eye-outline' fontSize={20} /> View
+                                        </MenuItem>
+                                        <MenuItem onClick={handleStudent}>
+                                            <Icon icon='mdi:pencil-outline' fontSize={20} /> Student
+                                        </MenuItem>
+                                        <MenuItem onClick={handleEdit}>
+                                            <Icon icon='mdi:pencil-outline' fontSize={20} /> Edit
+                                        </MenuItem>
+                                    </Menu>
+                                </>
+                            }
+                        />
+                    <CardContent>
+                        <Box
+                            sx={{
+                                mb: 3.5,
+                                borderRadius: 1,
+                                color: 'text.primary',
+                                p: theme => theme.spacing(2.75, 3.5),
+                                backgroundColor: bgColors.primaryLight.backgroundColor
+                            }}
+                        >
+                            <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
+                                <Avatar
+                                    variant='rounded'
+                                    sx={{
+                                        mr: 3,
+                                        width: 40,
+                                        height: 40,
+                                        color: 'primary.main',
+                                        backgroundColor: 'transparent',
+                                        border: theme => `2px solid ${theme.palette.primary.main}`
+                                    }}
+                                >
+                                    <Icon icon='mdi:currency-usd' />
+                                </Avatar>
 
-        <Grid item xs={12}>
-          <Card>
-            {/*filtre et post*/}
-            <Box sx={{
-              p: 5,
-              pb: 3,
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
 
-              {selected.length > 0 && <Fab  aria-label='delect selelcted' color='error' size='medium'
-                                                  onClick={SubmitremoveAll}
-              >
-                <Icon icon='ic:baseline-delete' fontSize={30} />
-              </Fab>}
-              <Box sx={{display: 'flex', alignItems: 'center', marginRight: 6, marginBottom: 2}}>
+                                <Box
+                                    sx={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between'
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                        <Typography sx={{ fontWeight: 600 }}>Frais d'scolariter</Typography>
+                                        <Typography
+                                            href='/'
+                                            component={Link}
+                                            variant='caption'
+                                            sx={{ color: 'primary.main' }}
+                                            onClick={e => e.preventDefault()}
+                                        >
+                                           à payer
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex' }}>
+                                        <Typography variant='h5'>{formatPrice(classe.prix)}</Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        </Box>
 
-                <TextField
-                  size='small'
-                  value={searchValue}
-                  placeholder={t('search')}
-                  onChange={handleSearchChange}
-                  sx={{flex: 1}}
-                />
-                <Box sx={{display: 'flex', alignItems: 'center'}}>
-                <Button variant='outlined' onClick={() => setOpenadd(true)}>
-                  {t('to add')}
-                </Button>
-                </Box>
-              </Box>
-            </Box>
-            {/*liste*/}
-            <DataGrid
-              autoHeight
-              rows={data}
-              columns={columns}
-              pageSize={pageSize}
-              rowsPerPageOptions={[5,10, 25, 50]}
-              disableSelectionOnClick
-              onSelectionModelChange={(ids) => {
-                setSelected(ids);
-              }}
-              selectionModel={selected}
-              sx={{'& .MuiDataGrid-columnHeaders': {borderRadius: 1}}}
-              onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-            />
+                        <Typography variant='body2' sx={{ mb: 4, fontWeight: 600, fontSize: '0.875rem' }}>
+                            Payment details
+                        </Typography>
 
-          </Card>
-        </Grid>
+                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                            <Avatar
+                                variant='rounded'
+                                sx={{
+                                    mr: 3,
+                                    width: 40,
+                                    height: 40,
+                                    color: 'primary.main',
+                                    backgroundColor: 'transparent',
+                                    border: theme => `2px solid ${theme.palette.primary.main}`
+                                }}
+                            >
+                                <Icon icon='mdi:account-school' />
+                            </Avatar>
+                            <Box
+                                sx={{
+                                    ml: 3,
+                                    flexGrow: 1,
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}
+                            >
+                                <Box sx={{ mr: 2, display: 'flex', mb: 0.4, flexDirection: 'column' }}>
+                                    <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                        Nombre d'eleve dans la classe
+                                    </Typography>
+                                    <Typography variant='caption'>{classe.eleves_count}</Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </CardContent>
+                    </Card>
+              </Grid>
+                ))}
+      </Grid>
+
         {/*add new*/}
         <Add open={openadd} setOpen={setOpenadd} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
         <EditModal data={dataclasse} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
@@ -375,8 +342,7 @@ const handleStudent = (user) => {
       <Error401/>
     </DialogContent>
   </Dialog>
-
-      </Grid>
+</>
   )
 }
 

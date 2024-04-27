@@ -15,10 +15,17 @@ const navigation = () => {
       badgeColor: 'error',
       path: '/mkl'
     },
+      {
+          title: 'Promotion',
+          action: 'read',
+          subject: 'acl-page',
+          icon: 'carbon:categories',
+          path: '/mkl/promotion'
+      },
     {
       title: 'Users',
       action: 'read',
-      subject: 'acl-page',
+      subject: 'superadmin-acl',
       icon: 'mdi:account-outline',
       path: '/mkl/user'
     },
@@ -37,13 +44,7 @@ const navigation = () => {
       icon: 'carbon:categories',
       path: '/mkl/classe'
     },
-{
-      title: 'Promotion',
-      action: 'read',
-      subject: 'acl-page',
-      icon: 'carbon:categories',
-      path: '/mkl/promotion'
-    },
+
     {
       title: 'Depense',
       action: 'read',

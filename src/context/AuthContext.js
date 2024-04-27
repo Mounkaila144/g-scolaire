@@ -74,16 +74,14 @@ const AuthProvider = ({ children }) => {
           // Log pour le développement. Vous pouvez le retirer plus tard.
           console.log('la réponse :', response);
 
-          // Extrayez l'access_token et les données de l'utilisateur de la réponse
-          const { access_token, user } = response.data.data;
 
           // Stockage de l'access_token dans localStorage
-          window.localStorage.setItem(authConfig.storageTokenKeyName, access_token);
+          window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.data.access_token);
 
-          // Mise à jour de l'état de l'utilisateur dans l'application
-          setUser({ ...user.user });
 
-          window.localStorage.setItem('userData', JSON.stringify(user.user));
+          setUser(response.data.data.user);
+
+          window.localStorage.setItem('userData', JSON.stringify(response.data.data.user));
 
           // Redirection basée sur l'URL de retour, si elle existe
           const returnUrl = router.query.returnUrl || '/';

@@ -14,6 +14,8 @@ import { useAuth } from 'src/hooks/useAuth'
 const Home = () => {
   // ** Hooks
   const auth = useAuth()
+  console.log("User",auth.user)
+  console.log("Role",auth.user.role)
   const router = useRouter()
   useEffect(() => {
     if (auth.user && auth.user.role) {

@@ -1,5 +1,5 @@
 // ** React Imports
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useContext} from 'react'
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -31,10 +31,17 @@ import Error401 from "../../401";
 import Sucess from "../../sucess";
 import Loading from "../../Loading";
 import {useSelector} from "react-redux";
+import {useAbility} from "@casl/react";
+import { AbilityContext } from 'src/layouts/components/acl/Can'
+
 
 // ** renders client column
 
-const classeList = () => {
+const promotionList = () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const ability = useAbility(AbilityContext);
+
+
   // ** State
   const [openadd, setOpenadd] = useState(false)
   const [openedit, setOpenedit] = useState(false)
@@ -92,9 +99,9 @@ const classeList = () => {
 
       try {
         const response = await MyRequest('promotions', 'GET', {}, {'Content-Type': 'application/json'});
-        if (Array.isArray(response.data)) {
-          setOriginalData(response.data);
-          setData(response.data);
+        if (Array.isArray(response.data.data)) {
+          setOriginalData(response.data.data);
+          setData(response.data.data);
         } else {
           console.error("Received non-array data:", response.data);
           setError("Une erreur est survenue lors du traitement des données.");
@@ -200,46 +207,39 @@ const handleView = (user) => {
             });
           handleRowOptionsClose();
         };
+
         const selectedPromotion = useSelector(state => state.promotion.selectedPromotion);
 
-        return (
-          <>
-            <IconButton size='small' onClick={handleRowOptionsClick}>
-              <Icon icon='mdi:dots-vertical' />
-            </IconButton>
-            <Menu
-              keepMounted
-              anchorEl={anchorEl}
-              open={rowOptionsOpen}
-              onClose={handleRowOptionsClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              PaperProps={{ style: { minWidth: '8rem' } }}
-            >
-              <MenuItem
-                sx={{ '& svg': { mr: 2 } }}
-                onClick={() => handleView(row)}
-              >
-                <Icon icon='mdi:eye-outline' fontSize={20} />
-                {t('View')}
-              </MenuItem>
-              <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit(row)}>
-                <Icon icon='mdi:pencil-outline' fontSize={20} />
-                 {t('Edit')}
-              </MenuItem>
-              <MenuItem onClick={()=>Submitremove()} sx={{ '& svg': { mr: 2 } }}>
-                <Icon icon='mdi:delete-outline' fontSize={20} />
-                 {t('Delete')}
-              </MenuItem>
-            </Menu>
-          </>
-        );
+
+          if (ability.can('read', 'superadmin-acl')) {
+              return (
+                  <>
+                      <IconButton size='small' onClick={handleRowOptionsClick}>
+                          <Icon icon='mdi:dots-vertical' />
+                      </IconButton>
+                      <Menu
+                          keepMounted
+                          anchorEl={anchorEl}
+                          open={rowOptionsOpen}
+                          onClose={handleRowOptionsClose}
+                          anchorOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'right',
+                          }}
+                          transformOrigin={{
+                              vertical: 'top',
+                              horizontal: 'right',
+                          }}
+                          PaperProps={{ style: { minWidth: '8rem' } }}
+                      >
+
+                          <MenuItem onClick={()=>Submitremove()} sx={{ '& svg': { mr: 2 } }}>
+                              <Icon icon='mdi:delete-outline' fontSize={20} />
+                              {t('Delete')}
+                          </MenuItem>
+                      </Menu>
+                  </>)
+          }
       },
     },
   ];
@@ -274,9 +274,9 @@ const handleView = (user) => {
                   sx={{flex: 1}}
                 />
                 <Box sx={{display: 'flex', alignItems: 'center'}}>
-                <Button variant='outlined' onClick={() => setOpenadd(true)}>
-                  {t('to add')}
-                </Button>
+                    {ability.can('read', 'superadmin-acl')&&<Button variant='outlined' onClick={() => setOpenadd(true)}>
+                        {t('to add')}
+                    </Button>}
                 </Box>
               </Box>
             </Box>
@@ -300,8 +300,6 @@ const handleView = (user) => {
         </Grid>
         {/*add new*/}
         <Add open={openadd} setOpen={setOpenadd} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-        <EditModal data={dataclasse} open={openedit} setOpen={setOpenedit} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
-        <ViewModal data={dataclasse} open={openview} setOpen={setOpenview} setSuccess={setSuccess} setLoading={setLoading} setError={setError}/>
        {/* View user modal */}
         <Dialog
           fullWidth
@@ -338,4 +336,4 @@ const handleView = (user) => {
   )
 }
 
-export default classeList
+export default promotionList

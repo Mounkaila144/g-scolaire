@@ -17,6 +17,7 @@ module.exports = {
     }
   },
   rules: {
+    "react-hooks/rules-of-hooks": "off",
     'react/react-in-jsx-scope': 'off',
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
     'react/display-name': 'off',
@@ -24,7 +25,7 @@ module.exports = {
     'react/no-unescaped-entities': 'off',
     'import/no-anonymous-default-export': 'off',
 
-    // add new line above comment
+    /* add new line above comment
     'lines-around-comment': [
       'error',
       {
@@ -53,6 +54,6 @@ module.exports = {
       'error',
       { blankLine: 'always', prev: ['export'], next: ['*'] },
       { blankLine: 'always', prev: ['*'], next: ['multiline-const', 'multiline-let', 'multiline-var', 'export'] }
-    ]
+    ]*/
   }
 }

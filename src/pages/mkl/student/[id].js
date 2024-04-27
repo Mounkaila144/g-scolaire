@@ -124,9 +124,9 @@ console.log(id)
 
       try {
         const response = await MyRequest(`eleves/classe/${id}`, 'GET', {}, {'Content-Type': 'application/json'});
-        if (Array.isArray(response.data)) {
-          setOriginalData(response.data);
-          setData(response.data);
+        if (Array.isArray(response.data.data)) {
+          setOriginalData(response.data.data);
+          setData(response.data.data);
         } else {
           console.error("Received non-array data:", response.data);
           setError(true);

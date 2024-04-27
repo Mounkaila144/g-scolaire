@@ -13,6 +13,8 @@ function PromotionSelector() {
   const storedPromotion = useSelector(state => state.promotion.selectedPromotion);
   const dispatch = useDispatch();
 
+
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await MyRequest('promotions', 'GET', [], {'Content-Type': 'application/json'});
@@ -37,7 +39,20 @@ function PromotionSelector() {
     };
 
     fetchData();
-  }, [storedPromotion]); // Dépendance à storedPromotion
+
+    const handleStorageChange = (event) => {
+      if (event.key === 'promotionUpdate') {
+        fetchData();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
 
   const handlePromotionChange = (e) => {
     const promotionId = e.target.value;

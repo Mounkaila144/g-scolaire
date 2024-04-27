@@ -25,7 +25,7 @@ const FAQ = ({ apiData }) => {
     if (searchTerm !== '') {
       axios.get('/pages/faqs', { params: { q: searchTerm } }).then(response => {
         if (response.data.faqData && Object.values(response.data.faqData).length) {
-          setData(response.data)
+          setData(response.data.data)
 
           // @ts-ignore
           setActiveTab(Object.values(response.data.faqData)[0].id)

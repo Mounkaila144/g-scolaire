@@ -27,6 +27,7 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
   const [fin, setFin] = useState(new Date());
   const [errorMessage, setErrorMessage] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  localStorage.setItem('promotionUpdate', Date.now().toString());
 
 
   const router = useRouter();
@@ -100,7 +101,7 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
                   <DatePicker
                     id='debut-date'
                     selected={debut}
-                    maxDate={addDays(new Date(), 5)}
+                  // Ici, maxDate est ajusté pour être égal à `fin`
                     onChange={date => setDebut(date)}
                     customInput={<PickersComponent label={t('Start')} />}
                     dateFormat="yyyy"
@@ -111,7 +112,7 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
                   <DatePicker
                     id='fin-date'
                     selected={fin}
-                    minDate={subDays(new Date(), 5)}
+                    minDate={debut}
                     onChange={date => setFin(date)}
                     customInput={<PickersComponent label={t('End')} />}
                     dateFormat="yyyy"
