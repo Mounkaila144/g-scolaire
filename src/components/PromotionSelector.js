@@ -3,6 +3,8 @@ import { Select, InputBase } from '@mui/material';
 import MyRequest from "../@core/components/request";
 import {useDispatch, useSelector} from "react-redux";
 import {selectPromotion} from "../store/promotion";
+import { useGlobalState } from './../context/useGlobalState';
+
 
 function PromotionSelector() {
   const [promotions, setPromotions] = useState([]);
@@ -12,8 +14,7 @@ function PromotionSelector() {
   const [success, setSuccess] = useState(false);
   const storedPromotion = useSelector(state => state.promotion.selectedPromotion);
   const dispatch = useDispatch();
-
-
+  const [updateCount] = useGlobalState();  // Ceci est juste pour s'abonner aux mises à jour
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,20 +40,7 @@ function PromotionSelector() {
     };
 
     fetchData();
-
-    const handleStorageChange = (event) => {
-      if (event.key === 'promotionUpdate') {
-        fetchData();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
-
+  }, [storedPromotion,updateCount]); // Dépendance à storedPromotion
 
   const handlePromotionChange = (e) => {
     const promotionId = e.target.value;

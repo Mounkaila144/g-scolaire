@@ -10,6 +10,7 @@ import subDays from 'date-fns/subDays'
 import addDays from 'date-fns/addDays'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+import { useGlobalState } from './../../context/useGlobalState';
 
 // ** Custom Component Imports
 import {
@@ -27,7 +28,7 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
   const [fin, setFin] = useState(new Date());
   const [errorMessage, setErrorMessage] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
-  localStorage.setItem('promotionUpdate', Date.now().toString());
+  const [updateCount, triggerUpdate] = useGlobalState();
 
 
   const router = useRouter();
@@ -59,6 +60,7 @@ const Add = ({ open, setOpen ,setSuccess, setLoading,setError}) => {
         setSuccess(true);
         setDebut('');
         setFin('');
+        triggerUpdate();
         refreshData();
       } else {
         setError(true);

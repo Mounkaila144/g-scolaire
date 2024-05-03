@@ -33,6 +33,7 @@ import Loading from "../../Loading";
 import {useSelector} from "react-redux";
 import {useAbility} from "@casl/react";
 import { AbilityContext } from 'src/layouts/components/acl/Can'
+import {useGlobalState} from "../../../context/useGlobalState";
 
 
 // ** renders client column
@@ -57,6 +58,7 @@ const promotionList = () => {
   const [error, setError] = useState(false)
   const [success, setSuccess] = useState(false); // New state variable for success message
   const [selected, setSelected] = useState([]);
+    const [updateCount, triggerUpdate] = useGlobalState();
 
 
   //DETED
@@ -193,6 +195,7 @@ const handleView = (user) => {
             .then(async (response) => {
               if (response.status === 204) {
                 await refreshData()
+                  triggerUpdate();
                 setSuccess(true)
 
               } else {

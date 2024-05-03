@@ -29,6 +29,14 @@ const navigation = () => {
       icon: 'mdi:account-outline',
       path: '/mkl/user'
     },
+
+      {
+          title: 'Class',
+          action: 'read',
+          subject: 'acl-page',
+          icon: 'carbon:categories',
+          path: '/mkl/classe'
+      },
     {
       title: 'All Student',
       action: 'read',
@@ -37,13 +45,6 @@ const navigation = () => {
       path: '/mkl/student/all'
     },
 
-    {
-      title: 'Class',
-      action: 'read',
-      subject: 'acl-page',
-      icon: 'carbon:categories',
-      path: '/mkl/classe'
-    },
 
     {
       title: 'Depense',

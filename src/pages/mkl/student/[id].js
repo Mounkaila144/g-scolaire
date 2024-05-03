@@ -42,7 +42,7 @@ const renderClient = row => {
   }
 }
 
-const StudentModal = ({}) => {
+const Student = () => {
   // ** State
   const router = useRouter();  // Initialize router here
   const [openadd, setOpenadd] = useState(false)
@@ -60,7 +60,8 @@ const StudentModal = ({}) => {
   const [error, setError] = useState(false)
   const [success, setSuccess] = useState(false);
   const [anchorEls, setAnchorEls] = useState({});
-  const { id } = router.query;
+  const { id, nom = 'Classe' } = router.query;
+
 
   //DETED
 
@@ -337,9 +338,36 @@ console.log(id)
   ];
 
   return (
-    <Grid container spacing={6}>
+      <Grid container alignItems="center" spacing={6}>
+        <Grid item xs={5} sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton
+              onClick={() => router.push('/mkl/classe')}
+              sx={{
+                color: 'red', // Set button color to red
+                marginRight: 2, // Add margin to the right
+                width: 68, // Set the width of the IconButton
+                height: 68 // Set the height of the IconButton
+              }}
+          >
+            <Icon icon='icon-park-solid:back' style={{ fontSize: '54px', width: '54px', height: '74px' }} />
+          </IconButton>
+        </Grid>
+        <Grid item xs={7} sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 'bold',
+                color: 'blue',
+                fontSize: '24px',
+                textShadow: '1px 1px 2px black, 0 0 25px dark, 0 0 5px dark'
+              }}
+          >
+            {nom}
+          </Typography>
+        </Grid>
 
       <Grid item xs={12}>
+
         <Card>
           {/*filtre et post*/}
           <Box sx={{
@@ -449,4 +477,4 @@ console.log(id)
   )
 }
 
-export default StudentModal
+export default Student
