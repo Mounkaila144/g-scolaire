@@ -125,13 +125,32 @@ const depenseModal = ({}) => {
     },
     {
       flex: 0.2,
-      minWidth: 400,
+      minWidth: 100,
       field: 'details',
       headerName: t('Details'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
             {row.details}
+          </Typography>
+        );
+      },
+    },
+  {
+      flex: 0.2,
+      minWidth: 100,
+      field: 'Date',
+      headerName: t('Date'),
+      renderCell: ({ row }) => {
+        const date = new Date(row.created_at);
+        const formattedDate = date.toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        return (
+          <Typography noWrap variant='body2'>
+            {formattedDate}
           </Typography>
         );
       },
@@ -219,13 +238,6 @@ const depenseModal = ({}) => {
               }}
               PaperProps={{ style: { minWidth: '8rem' } }}
             >
-              <MenuItem
-                sx={{ '& svg': { mr: 2 } }}
-                onClick={() => handleView(row)}
-              >
-                <Icon icon='mdi:eye-outline' fontSize={20} />
-                {t('View')}
-              </MenuItem>
               <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit(row)}>
                 <Icon icon='mdi:pencil-outline' fontSize={20} />
                 {t('Edit')}
